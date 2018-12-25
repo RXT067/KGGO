@@ -1,4 +1,4 @@
-# KGOFGUW [GŮ:W]
+# KGOFGUW [GŮ:W-tlhlngan accent]
 Krey's Gaming Overlay For Gentoo Using Wrappers, because gentoo doesn't support that by design nor opinion, KREEEY YOU DUMB DUMB USEEE POOOL OR LUUUUUTRISSS INSTEAD OF ABUSING PORTAGE!! .. no
 
 ## Abstract
