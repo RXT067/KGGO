@@ -1,5 +1,5 @@
 # KGOFGUW [GŮ:W]
-Krey's Gaming Overlay For Gentoo Using Wrappers, because gentoo doesn't support that by design nor opinion, KREEEY YOU DUMB DUMB USEEE POOOL OR LUUUUUTRISSS INSTEAD OF ABUSING PORTAGE!! 
+Krey's Gaming Overlay For Gentoo Using Wrappers, because gentoo doesn't support that by design nor opinion, KREEEY YOU DUMB DUMB USEEE POOOL OR LUUUUUTRISSS INSTEAD OF ABUSING PORTAGE!! .. no
 
 ## Abstract
 OutOfTheBox Gaming on Gentoo using WINE with wineapps on platinum.
