@@ -1,4 +1,4 @@
-# KGOFGUW [GŮ:W] 4674903
+# KGOFGUW [GŮ:W]
 Krey's Gaming Overlay For Gentoo Using Wrapper
 
 ## Abstract
