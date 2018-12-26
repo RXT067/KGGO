@@ -3,8 +3,6 @@
 # Distributed under the terms of the GNU General Public License v2
 # Based on master index https://devmanual.gentoo.org/
 
-# VERSION: 0.0-concept
-
 # Related https://stackoverflow.com/questions/600079/how-do-i-clone-a-subdirectory-only-of-a-git-repository/52269934#52269934
 ## Meh wasting time requesting it on gentoo, using workaround.
 
@@ -309,6 +307,8 @@ disabled-pkg_postinst () {
 
 disabled-pkg_prerm () {
 # Called before a package is unmerged
+
+	rm -r $LOLDIR
 
 	return
 }
