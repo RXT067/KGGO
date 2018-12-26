@@ -7,6 +7,7 @@
 ## Meh wasting time requesting it on gentoo, using workaround.
 
 # NOTE:  "Double quote" every literal that contains spaces/metacharacters and _every_ expansion: "$var", "$(command "$var")", "${array[@]}", "a & b". Use 'single quotes' for code or literal $'s: 'Costs $5 US', ssh host 'echo "$HOSTNAME"'. See http://mywiki.wooledge.org/Quotes , http://mywiki.wooledge.org/Arguments and http://wiki.bash-hackers.org/syntax/words .
+# TODO: Desktop shortcut for WINEDEBUG="-all" WINEPREFIX="/opt/games/leagueoflegends" wine /opt/games/leagueoflegends/drive_c/Riot\ Games/League\ of\ Legends/LeagueClient.exe 
 
 EAPI=6
 
@@ -141,11 +142,11 @@ pkg_pretend () {
 # run sanity checks for a package during dependency calculation time
 
 	if [[ ! -x $(command -v wine) ]]; then
-		die "Wine is not executable"
+		die "Wine is not executable."
 	fi
 
 	if [[ ! -x $(command -v winetricks) ]]; then
-		die "Winetricks is not executable"
+		die "Winetricks is not executable."
 	fi
 
 	return
@@ -171,7 +172,7 @@ pkg_setup () {
 			else 
 				LOL_INSTALLER=$PHD/LOL_INSTALLER.exe
 				mkdir -p /home/$USER/games/leagueoflegends
-				chown -Rf $USER /home/$USER/games/leagueoflegends
+				chown -Rf $USER /home/$USER/games/leagueoflegends*
 				LOL_INSTALLER_LOOP=done
 				break
 		fi
@@ -213,13 +214,7 @@ pkg_setup () {
 
 	WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" wine "${LOL_INSTALLER}"
 
-	chown -Rf $USER /home/$USER/games/leagueoflegends
-
-	wget "https://raw.githubusercontent.com/RXT067/krey-overlay/master/games-moba/leagueoflegends/patches/0003-Pretend-to-have-a-wow64-dll.patch"
-	wget "https://raw.githubusercontent.com/RXT067/krey-overlay/master/games-moba/leagueoflegends/patches/0006-Refactor-LdrInitializeThunk.patch"	
-	wget "https://raw.githubusercontent.com/RXT067/krey-overlay/master/games-moba/leagueoflegends/patches/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
-	wget "https://raw.githubusercontent.com/RXT067/krey-overlay/master/games-moba/leagueoflegends/patches/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
-
+	chown -R $USER $LOLDIR
 }
 
 disabled-src_unpack () {
@@ -228,43 +223,8 @@ disabled-src_unpack () {
 	return
 }
 
-src_prepare () {
+DISABLED_src_prepare () {
 # Prepare source packages and do any necessary patching or fixes.
-
-	PATCHES=(
-		"${PHD}/0003-Pretend-to-have-a-wow64-dll.patch"
-		"${PHD}/0006-Refactor-LdrInitializeThunk.patch"
-		"${PHD}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
-		"${PHD}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
-		)
-
-	# https://appdb.winehq.org/objectManager.php?sClass=version&iId=36323 is mandatory
-	echo "Downloading Anti-Cheat patchset (Credit: Andrew Wesie)"
-	echo "WARNING: Those patches are safe in case you get banned sent a ticket on riot support and they will unban you."
-	sleep 10
-
-	# TODO: https://devmanual.gentoo.org/ebuild-writing/misc-files/patches/index.html
-	# IMPROVEMENT: improve http://mywiki.wooledge.org/glob#extglob
-	# IMPROVEMENT: http://ix.io/1wHD
-	# INFO: https://devmanual.gentoo.org/ebuild-writing/functions/src_prepare/epatch/index.html
-	#if [[ -e ${FILESDIR}/@(0003-Pretend-to-have-a-wow64-dll.patch&0006-Refactor-LdrInitializeThunk.patch&0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch&0009-Refactor-__wine_syscall_dispatcher-for-i386.patch) ]]; then
-	if [[ -e "${WORKDIR}/0003-Pretend-to-have-a-wow64-dll.patch" ]] && [[ -e "${WORKDIR}/0006-Refactor-LdrInitializeThunk.patch" ]] && [[ -e "${WORKDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch" ]] && [[ -e "${WORKDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch" ]]; then
-		epatch -p1 "${WORKDIR}/0003-Pretend-to-have-a-wow64-dll.patch"
-		epatch -p1 "${WORKDIR}/0006-Refactor-LdrInitializeThunk.patch"
-		epatch -p1 "${WORKDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
-		epatch -p1 "${WORKDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
-
-		mv "${WORKDIR}/0003-Pretend-to-have-a-wow64-dll.patch" "${FILESDIR}/"
-		mv "${WORKDIR}/0006-Refactor-LdrInitializeThunk.patch" "${FILESDIR}/"
-		mv "${WORKDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch" "${FILESDIR}/"
-		mv "${WORKDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch" "${FILESDIR}/"
-
-		else
-			echo "FATAL: Patches was NOT detected in ${FILESDIR}"
-			# TODO: try to re-fetch?
-			echo "Please apply them manually from https://github.com/RXT067/krey-overlay/tree/master/games-moba/leagueoflegends/patches"
-			die
-	fi
 
 	return
 }
@@ -307,8 +267,6 @@ disabled-pkg_postinst () {
 
 disabled-pkg_prerm () {
 # Called before a package is unmerged
-
-	rm -r $LOLDIR
 
 	return
 }
