@@ -1,5 +1,5 @@
-# KGOFGUW [GŮ:W-tlhlngan accent]
-Krey's Gaming Overlay For Gentoo Using Wrappers, because gentoo doesn't support that by design nor opinion, KREEEY YOU DUMB DUMB USEEE POOOL OR LUUUUUTRISSS INSTEAD OF ABUSING PORTAGE!! .. no
+# KGGO [KGō̊: (tlhlngan accent)]
+Krey's Gentoo Gaming Overlay, because i want OOTB gaming on Gentoo that Gentoo doesn't support by design.. -_-
 
 ## Abstract
 OutOfTheBox Gaming on Gentoo using WINE with wineapps on platinum.
