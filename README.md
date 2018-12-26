@@ -18,6 +18,3 @@ Removing personal data on demand, gdpr@rixotstudio.cz
 
 ## License 
 If you decide to contribute to RiXotStudio's project you agree with projects's license and you are revoking your ability to redo your contribution.
-
-## Credits
-Kreyren (github.com/kreyren)
