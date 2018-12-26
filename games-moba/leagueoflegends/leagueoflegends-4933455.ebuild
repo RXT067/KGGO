@@ -215,6 +215,34 @@ pkg_setup () {
 	WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" wine "${LOL_INSTALLER}"
 
 	chown -R $USER $LOLDIR
+
+	# https://appdb.winehq.org/objectManager.php?sClass=version&iId=36323 is mandatory
+	echo "Downloading Anti-Cheat patchset (Credit: Andrew Wesie)"
+	echo "WARNING: Those patches are safe in case you get banned sent a ticket on riot support and they will unban you."
+
+	wget "https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0003-Pretend-to-have-a-wow64-dll.patch"
+	wget "https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0006-Refactor-LdrInitializeThunk.patch"	
+	wget "https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
+	wget "https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
+
+	# TODO: https://devmanual.gentoo.org/ebuild-writing/misc-files/patches/index.html
+	# IMPROVEMENT: improve http://mywiki.wooledge.org/glob#extglob
+	# IMPROVEMENT: http://ix.io/1wHD
+	# INFO: https://devmanual.gentoo.org/ebuild-writing/functions/src_prepare/epatch/index.html
+	if [[ -e "${HOMEDIR}/0003-Pretend-to-have-a-wow64-dll.patch" ]] && [[ -e "${HOMEDIR}/0006-Refactor-LdrInitializeThunk.patch" ]] && [[ -e "${HOMEDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch" ]] && [[ -e "${HOMEDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch" ]]; then
+		patch -p1 "${HOMEDIR}/0003-Pretend-to-have-a-wow64-dll.patch"
+		patch -p1 "${HOMEDIR}/0006-Refactor-LdrInitializeThunk.patch"
+		patch -p1 "${HOMEDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
+		patch -p1 "${HOMEDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
+		# TODO: Gets stuck, but applies the patches.. o.o
+
+		else
+			echo "FATAL: Patches was NOT detected in ${HOMEDIR}"
+			# TODO: try to re-fetch?
+			echo "Please apply them manually from https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/"
+			die
+	fi
+
 }
 
 disabled-src_unpack () {
@@ -223,7 +251,7 @@ disabled-src_unpack () {
 	return
 }
 
-DISABLED_src_prepare () {
+disabled_src_prepare () {
 # Prepare source packages and do any necessary patching or fixes.
 
 	return
@@ -271,8 +299,10 @@ disabled-pkg_prerm () {
 	return
 }
 
-disabled-pkg_postrm () {
+pkg_postrm () {
 # Called after image is installed to ${ROOT}
+
+	rm -r /opt/games/leagueoflegends
 
 	return
 }
