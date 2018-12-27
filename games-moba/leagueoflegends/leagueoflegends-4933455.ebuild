@@ -149,7 +149,6 @@ pkg_pretend () {
 		die "Winetricks is not executable."
 	fi
 
-	return
 }
 
 pkg_setup () {
@@ -207,8 +206,6 @@ pkg_setup () {
 "
 
 	echo "Press any key to continue.."
-
-	echo "Otherwise League Of Legends would execute as root.."
 
 	read anything
 
