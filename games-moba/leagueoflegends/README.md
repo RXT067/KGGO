@@ -5,4 +5,4 @@ The game follows a freemium model and is supported by microtransactions, and was
 Last tested: https://youtu.be/aM6Tn45vTSo
 
 ## Warning
-Wine and Winetricks are invoked as root since ebuild doesn't support invoking them as non-root to my knowledge. Permissions are fixed within the ebuild once the deps and game is installed.
+Wine and Winetricks are invoked as root since ebuild doesn't support invoking them as non-root to my knowledge. Permissions are fixed within the ebuild unless you open a launcher after the installation and once the deps and game is installed.
