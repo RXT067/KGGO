@@ -1,7 +1,4 @@
 # EBUILD: LEAGUE OF LEGENDS
-
-![LOGO](http://hdwallpaper.live/wp-content/uploads/2018/11/league-of-legends-logo-wallpaper-hd.jpg)
-
 League of Legends is a multiplayer online battle arena video game developed by Riot Games for M$ Windows, shitOS and GENTOOOOOOOOOOOOOOOOOOOO.
 The game follows a freemium model and is supported by microtransactions, and was inspired by the Warcraft III: The Frozen Throne mod, Defense of the Ancients. - Wikipedia
 
