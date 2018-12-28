@@ -101,7 +101,7 @@ PACKDIR=${PORTDIR}/${PC}/${PNAV}
 
 BUILDDIR=${PACKDIR}/build
 
-#FILESDIR=${PACKDIR}/files
+#FILESDIR=${PACKDI3R}/files
 
 #WORKDIR=${PACKDIR}/work
 
@@ -183,7 +183,7 @@ get_user_var () {
 install_wine () {
 		echo Winetricks: $(winetricks --version)
 
-	WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" winetricks corefonts adobeair vcrun2008 vcrun2017 winxp glsl=disabled
+	WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" winetricks corefonts adobeair vcrun2008 vcrun2017 winxp glsl=disabled dxvk
 
 	echo "
 !!! DO NOT LAUNCH THE GAME ONCE THE INSTALLER IS FINISHED !!!
