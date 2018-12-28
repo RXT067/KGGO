@@ -1,5 +1,4 @@
-# STATUS: **ABADONWARE/DANGEROUS**
-*replaced by games-moba/leagueoflegends-next which uses makefile to invoke bash script (WIP-concept).*
+# STATUS: **DANGEROUS**
 - Ebuild is unable to invoke wine/winetricks as non-root - FATAL: SECURITY HAZARD
   - Used `chown -R $USER $LOLDIR` to fix permission after the game is installed, but this way the wine can invoke something like wannacry that works on WINE and is able to ruin linux (https://appdb.winehq.org/objectManager.php?sClass=application&iId=18249).
 - Ebuild is unable to fetch SCR_URI with a variables
