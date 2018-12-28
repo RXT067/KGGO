@@ -11,6 +11,12 @@
 
 EAPI=6
 
+#inherit epatch
+##<01> epatch & eapply are both for applying patches for the sources/files that the ebuild itself is about to install, not for modifying other packages' files, or some user's homedir files
+##<kreyren> what is the difference between epatch and eapply?
+##<01> epatch was the old way, handled by an eclass you had to inherit.  eapply is the new way, built into portage itself, it's most standardized and it is what you shoudl be using on any new ebuild.
+### So epatch eclass is not required for epally.
+
 ## OVERRIDES
 DEPEND=$DEPENDENCIES 
 RDEPEND=$RUNTIME_DEPENDENDIES
@@ -20,8 +26,12 @@ DESCRIPTION="League Of Legends ebuild for gentoo." # A short (not more than 80 c
 
 HOMEPAGE="https://www.leagueoflegends.com/" # Package's homepage. Mandatory (except for virtuals).
 
-# SRC_URI="https://riotgamespatcher-a.akamaihd.net/releases/live/installer/deploy/League%20of%20Legends%20installer%20EUNE.exe" # A list of source URIs for the package. Can contain USE-conditional parts - https://devmanual.gentoo.org/ebuild-writing/variables/index.html#src_uri
-## Doesn't work dunno why..
+SRC_URI="
+https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0003-Pretend-to-have-a-wow64-dll.patch 
+https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0006-Refactor-LdrInitializeThunk.patch
+https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch
+https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
+# A list of source URIs for the package. Can contain USE-conditional parts - https://devmanual.gentoo.org/ebuild-writing/variables/index.html#src_uri
 ## TODO: Fetch installer for selected region
 
 # EGIT_REPO_URI="" # Fetch from git
@@ -132,53 +142,46 @@ ROOT=/ # I AM ROOT
 
 LOLDIR=/opt/games/leagueoflegends
 
+EPATCH_SOURCE="${FILESDIR}/patch"
+
+EPATCH_SUFFIX="patch"
+
 }
 
 # FUNCTIONS - https://devmanual.gentoo.org/ebuild-writing/functions/index.html
 
 S=${WORKDIR}
 
-pkg_pretend () { 
-# run sanity checks for a package during dependency calculation time
+region_selection () {
+	while [[ ${REGION} != @(EUNE|NA|EUW|BR|LAN|LAS|OCE|RU|JP|SEA) ]]; do 
+	echo "Select your region:
+	EUNE  - Europe Nordic and East
+	NA    - North America
+	EUW   - Europe West
+	BR    - Brazil
+	AN    - Latin America North
+	LAS   - Latin America South
+	OCE   - Oceania
+	RU    - Russia
+	TR    - Turkey
+	JP    - Japan
+	SEA   - South East Asia
+	"
 
-	if [[ ! -x $(command -v wine) ]]; then
-		die "Wine is not executable."
-	fi
+	read REGION
 
-	if [[ ! -x $(command -v winetricks) ]]; then
-		die "Winetricks is not executable."
-	fi
-
+done
 }
 
-pkg_setup () {
-# https://devmanual.gentoo.org/ebuild-writing/functions/pkg_setup/index.html
+get_user_var () {
+	echo "Pick a username which is going to be used by the script."
+	echo "WARNING: case-sensitive!"
 
-	JAZZHANDS
+	read USER
+}
 
-	USER=kreyren # TODO: Needs fix
-
-	wget -O "LOL_INSTALLER.exe" https://riotgamespatcher-a.akamaihd.net/releases/live/installer/deploy/League%20of%20Legends%20installer%20EUNE.exe
-
-	# Exist check - fail with request to download if not present
-	while [[ LOL_INSTALLER_LOOP != done ]]; do
-
-		if [[ ! -e "$PHD/LOL_INSTALLER.exe" ]]; then
-				echo "ERROR $PHD/LOL_INSTALLER.exe is not present"
-				echo "Please download the league of legends installer from official source and place it in mensioned path and name."
-				read nothing
-
-			else 
-				LOL_INSTALLER=$PHD/LOL_INSTALLER.exe
-				mkdir -p /home/$USER/games/leagueoflegends
-				chown -Rf $USER /home/$USER/games/leagueoflegends*
-				LOL_INSTALLER_LOOP=done
-				break
-		fi
-
-	done
-	
-	echo Winetricks: $(winetricks --version)
+install_wine () {
+		echo Winetricks: $(winetricks --version)
 
 	WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" winetricks corefonts adobeair vcrun2008 vcrun2017 winxp glsl=disabled
 
@@ -205,40 +208,91 @@ pkg_setup () {
 !!! DO NOT LAUNCH THE GAME ONCE THE INSTALLER IS FINISHED !!!
 "
 
-	echo "Press any key to continue.."
+	echo "Press return to continue.."
 
 	read anything
+
+	# Add idiot-check
 
 	WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" wine "${LOL_INSTALLER}"
 
 	chown -R $USER $LOLDIR
+	## TODO: Make a group.
+}
+
+apply_patches () {
 
 	# https://appdb.winehq.org/objectManager.php?sClass=version&iId=36323 is mandatory
 	echo "Downloading Anti-Cheat patchset (Credit: Andrew Wesie)"
-	echo "WARNING: Those patches are safe in case you get banned sent a ticket on riot support and they will unban you."
 
-	wget "https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0003-Pretend-to-have-a-wow64-dll.patch"
-	wget "https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0006-Refactor-LdrInitializeThunk.patch"	
-	wget "https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
-	wget "https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
-
-	# TODO: https://devmanual.gentoo.org/ebuild-writing/misc-files/patches/index.html
 	# IMPROVEMENT: improve http://mywiki.wooledge.org/glob#extglob
 	# IMPROVEMENT: http://ix.io/1wHD
 	# INFO: https://devmanual.gentoo.org/ebuild-writing/functions/src_prepare/epatch/index.html
-	if [[ -e "${HOMEDIR}/0003-Pretend-to-have-a-wow64-dll.patch" ]] && [[ -e "${HOMEDIR}/0006-Refactor-LdrInitializeThunk.patch" ]] && [[ -e "${HOMEDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch" ]] && [[ -e "${HOMEDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch" ]]; then
-		patch -p1 "${HOMEDIR}/0003-Pretend-to-have-a-wow64-dll.patch"
-		patch -p1 "${HOMEDIR}/0006-Refactor-LdrInitializeThunk.patch"
-		patch -p1 "${HOMEDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
-		patch -p1 "${HOMEDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
-		# TODO: Gets stuck, but applies the patches.. o.o
+	if [[ -e "${DISTDIR}/0003-Pretend-to-have-a-wow64-dll.patch" ]] && [[ -e "${DISTDIR}/0006-Refactor-LdrInitializeThunk.patch" ]] && [[ -e "${DISTDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch" ]] && [[ -e "${DISTDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch" ]]; then
+		eapply "${DISTDIR}/0003-Pretend-to-have-a-wow64-dll.patch"
+		eapply "${DISTDIR}/0006-Refactor-LdrInitializeThunk.patch"
+		eapply "${DISTDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
+		eapply "${DISTDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
+
+		echo "Use following command to invoke LeagueOfLegends from non-root:
+
+leagueoflegends='WINEDEBUG='-all' WINEPREFIX='/opt/games/leagueoflegends' wine /opt/games/leagueoflegends/drive_c/Riot\ Games/League\ of\ Legends/LeagueClient.exe
+
+"
 
 		else
 			echo "FATAL: Patches was NOT detected in ${HOMEDIR}"
 			# TODO: try to re-fetch?
 			echo "Please apply them manually from https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/"
+			echo "Patches are mandatory for anti-cheat to accept leagueoflegends through wine."
 			die
 	fi
+}
+
+pkg_pretend () { 
+# run sanity checks for a package during dependency calculation time
+
+	if [[ ! -x $(command -v wine) ]]; then
+		die "Wine is not executable."
+	fi
+
+	if [[ ! -x $(command -v winetricks) ]]; then
+		die "Winetricks is not executable."
+	fi
+
+}
+
+pkg_setup () {
+# https://devmanual.gentoo.org/ebuild-writing/functions/pkg_setup/index.html
+
+	JAZZHANDS
+
+	region_selection # Get REGION var
+
+	get_user_var # Get USER var
+
+	wget -O "LOL_INSTALLER.exe" https://riotgamespatcher-a.akamaihd.net/releases/live/installer/deploy/League%20of%20Legends%20installer%20${REGION}.exe
+
+	# Exist check - fail with request to download if not present
+	while [[ LOL_INSTALLER_LOOP != done ]]; do
+
+		if [[ ! -e "$PHD/LOL_INSTALLER.exe" ]]; then
+				echo "ERROR $PHD/LOL_INSTALLER.exe is not present"
+				echo "Please download the league of legends installer from official source and place it in mensioned path and name."
+				read nothing
+
+			else 
+				LOL_INSTALLER=$PHD/LOL_INSTALLER.exe
+				mkdir -p /opt/games/leagueoflegends
+				LOL_INSTALLER_LOOP=done
+				break
+		fi
+
+	done
+
+	install_wine
+
+	#apply_patches
 
 }
 
@@ -248,8 +302,11 @@ disabled-src_unpack () {
 	return
 }
 
-disabled_src_prepare () {
+disable_src_prepare () {
 # Prepare source packages and do any necessary patching or fixes.
+
+	install_wine
+	## TODO: results in https://paste.pound-python.org/show/7wSqPPauklg8C7mVXhwR/
 
 	return
 }
@@ -293,13 +350,13 @@ disabled-pkg_postinst () {
 disabled-pkg_prerm () {
 # Called before a package is unmerged
 
+	rm -r /opt/games/leagueoflegends
+
 	return
 }
 
 pkg_postrm () {
 # Called after image is installed to ${ROOT}
-
-	rm -r /opt/games/leagueoflegends
 
 	return
 }
