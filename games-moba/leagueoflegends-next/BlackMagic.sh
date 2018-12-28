@@ -2,7 +2,7 @@
 ## Author kreyren @ github.com/kreyren
 ## License: GNUv2
 
-WINEPREFIX=
+WINEPREFIX="/opt/games/leagueoflegends/"
 
 LOL_INSTALLER_EXE=
 
