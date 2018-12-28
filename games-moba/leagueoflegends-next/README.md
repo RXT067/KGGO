@@ -1,6 +1,8 @@
 # EBUILD: LEAGUE OF LEGENDS
 Installing League Of Legends using wine Wrapper on Gentoo's ebuild.
 
+Inspired by https://github.com/Nefelim4ag/osu-wine
+
 Last tested: None
 
 ## Abstract
