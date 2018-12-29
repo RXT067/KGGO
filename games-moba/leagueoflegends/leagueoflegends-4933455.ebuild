@@ -153,39 +153,41 @@ EPATCH_SUFFIX="patch"
 S=${WORKDIR}
 
 region_selection () {
-	while [[ ${REGION} != @(EUNE|NA|EUW|BR|LAN|LAS|OCE|RU|JP|SEA) ]]; do 
-	echo "Select your region:
-	EUNE  - Europe Nordic and East
-	NA    - North America
-	EUW   - Europe West
-	BR    - Brazil
-	AN    - Latin America North
-	LAS   - Latin America South
-	OCE   - Oceania
-	RU    - Russia
-	TR    - Turkey
-	JP    - Japan
-	SEA   - South East Asia
-	"
+    while [[ ${REGION} != @(EUNE|NA|EUW|BR|LAN|LAS|OCE|RU|JP|SEA) ]]; do 
+    echo "Select your region:
+    EUNE  - Europe Nordic and East
+    NA    - North America
+    EUW   - Europe West
+    BR    - Brazil
+    AN    - Latin America North
+    LAS   - Latin America South
+    OCE   - Oceania
+    RU    - Russia
+    TR    - Turkey
+    JP    - Japan
+    SEA   - South East Asia
+    "
 
-	read REGION
+    read REGION
 
 done
 }
 
 get_user_var () {
-	echo "Pick a username which is going to be used by the script."
-	echo "WARNING: case-sensitive!"
+    echo "Pick a username which is going to be used by the script."
+    echo "WARNING: case-sensitive!"
 
-	read USER
+    read USER
 }
 
 install_wine () {
-		echo Winetricks: $(winetricks --version)
+        echo Winetricks: $(winetricks --version)
 
-	WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" winetricks corefonts adobeair vcrun2008 vcrun2017 winxp glsl=disabled dxvk
+    WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" winetricks corefonts adobeair vcrun2008 vcrun2017 winxp glsl=disabled
+    ## BUG: Unable to use DXVK cause of anti-cheat - https://github.com/doitsujin/dxvk/issues/835
+    ## TODO: Use Gallium9 to improve performance.
 
-	echo "
+    echo "
 !!! DO NOT LAUNCH THE GAME ONCE THE INSTALLER IS FINISHED !!!
 !!! DO NOT LAUNCH THE GAME ONCE THE INSTALLER IS FINISHED !!!
 !!! DO NOT LAUNCH THE GAME ONCE THE INSTALLER IS FINISHED !!!
@@ -208,167 +210,167 @@ install_wine () {
 !!! DO NOT LAUNCH THE GAME ONCE THE INSTALLER IS FINISHED !!!
 "
 
-	echo "Press return to continue.."
+    echo "Press return to continue.."
 
-	read anything
+    read anything
 
-	# Add idiot-check
+    # Add idiot-check
 
-	WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" wine "${LOL_INSTALLER}"
+    WINEDEBUG="-all" WINEPREFIX="${LOLDIR}" wine "${LOL_INSTALLER}"
 
-	chown -R $USER $LOLDIR
-	## TODO: Make a group.
+    chown -R $USER $LOLDIR
+    ## TODO: Make a group.
 }
 
 apply_patches () {
 
-	# https://appdb.winehq.org/objectManager.php?sClass=version&iId=36323 is mandatory
-	echo "Downloading Anti-Cheat patchset (Credit: Andrew Wesie)"
+    # https://appdb.winehq.org/objectManager.php?sClass=version&iId=36323 is mandatory
+    echo "Downloading Anti-Cheat patchset (Credit: Andrew Wesie)"
 
-	# IMPROVEMENT: improve http://mywiki.wooledge.org/glob#extglob
-	# IMPROVEMENT: http://ix.io/1wHD
-	# INFO: https://devmanual.gentoo.org/ebuild-writing/functions/src_prepare/epatch/index.html
-	if [[ -e "${DISTDIR}/0003-Pretend-to-have-a-wow64-dll.patch" ]] && [[ -e "${DISTDIR}/0006-Refactor-LdrInitializeThunk.patch" ]] && [[ -e "${DISTDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch" ]] && [[ -e "${DISTDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch" ]]; then
-		eapply "${DISTDIR}/0003-Pretend-to-have-a-wow64-dll.patch"
-		eapply "${DISTDIR}/0006-Refactor-LdrInitializeThunk.patch"
-		eapply "${DISTDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
-		eapply "${DISTDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
+    # IMPROVEMENT: improve http://mywiki.wooledge.org/glob#extglob
+    # IMPROVEMENT: http://ix.io/1wHD
+    # INFO: https://devmanual.gentoo.org/ebuild-writing/functions/src_prepare/epatch/index.html
+    if [[ -e "${DISTDIR}/0003-Pretend-to-have-a-wow64-dll.patch" ]] && [[ -e "${DISTDIR}/0006-Refactor-LdrInitializeThunk.patch" ]] && [[ -e "${DISTDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch" ]] && [[ -e "${DISTDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch" ]]; then
+        eapply "${DISTDIR}/0003-Pretend-to-have-a-wow64-dll.patch"
+        eapply "${DISTDIR}/0006-Refactor-LdrInitializeThunk.patch"
+        eapply "${DISTDIR}/0007-Refactor-RtlCreateUserThread-into-NtCreateThreadEx.patch"
+        eapply "${DISTDIR}/0009-Refactor-__wine_syscall_dispatcher-for-i386.patch"
 
-		echo "Use following command to invoke LeagueOfLegends from non-root:
+        echo "Use following command to invoke LeagueOfLegends from non-root:
 
 leagueoflegends='WINEDEBUG='-all' WINEPREFIX='/opt/games/leagueoflegends' wine /opt/games/leagueoflegends/drive_c/Riot\ Games/League\ of\ Legends/LeagueClient.exe
 
 "
 
-		else
-			echo "FATAL: Patches was NOT detected in ${HOMEDIR}"
-			# TODO: try to re-fetch?
-			echo "Please apply them manually from https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/"
-			echo "Patches are mandatory for anti-cheat to accept leagueoflegends through wine."
-			die
-	fi
+        else
+            echo "FATAL: Patches was NOT detected in ${HOMEDIR}"
+            # TODO: try to re-fetch?
+            echo "Please apply them manually from https://raw.githubusercontent.com/RXT067/KGGO/master/games-moba/leagueoflegends/PATCHES/"
+            echo "Patches are mandatory for anti-cheat to accept leagueoflegends through wine."
+            die
+    fi
 }
 
 pkg_pretend () { 
 # run sanity checks for a package during dependency calculation time
 
-	if [[ ! -x $(command -v wine) ]]; then
-		die "Wine is not executable."
-	fi
+    if [[ ! -x $(command -v wine) ]]; then
+        die "Wine is not executable."
+    fi
 
-	if [[ ! -x $(command -v winetricks) ]]; then
-		die "Winetricks is not executable."
-	fi
+    if [[ ! -x $(command -v winetricks) ]]; then
+        die "Winetricks is not executable."
+    fi
 
 }
 
 pkg_setup () {
 # https://devmanual.gentoo.org/ebuild-writing/functions/pkg_setup/index.html
 
-	JAZZHANDS
+    JAZZHANDS
 
-	region_selection # Get REGION var
+    region_selection # Get REGION var
 
-	get_user_var # Get USER var
+    get_user_var # Get USER var
 
-	wget -O "LOL_INSTALLER.exe" https://riotgamespatcher-a.akamaihd.net/releases/live/installer/deploy/League%20of%20Legends%20installer%20${REGION}.exe
+    wget -O "LOL_INSTALLER.exe" https://riotgamespatcher-a.akamaihd.net/releases/live/installer/deploy/League%20of%20Legends%20installer%20${REGION}.exe
 
-	# Exist check - fail with request to download if not present
-	while [[ LOL_INSTALLER_LOOP != done ]]; do
+    # Exist check - fail with request to download if not present
+    while [[ LOL_INSTALLER_LOOP != done ]]; do
 
-		if [[ ! -e "$PHD/LOL_INSTALLER.exe" ]]; then
-				echo "ERROR $PHD/LOL_INSTALLER.exe is not present"
-				echo "Please download the league of legends installer from official source and place it in mensioned path and name."
-				read nothing
+        if [[ ! -e "$PHD/LOL_INSTALLER.exe" ]]; then
+                echo "ERROR $PHD/LOL_INSTALLER.exe is not present"
+                echo "Please download the league of legends installer from official source and place it in mensioned path and name."
+                read nothing
 
-			else 
-				LOL_INSTALLER=$PHD/LOL_INSTALLER.exe
-				mkdir -p /opt/games/leagueoflegends
-				LOL_INSTALLER_LOOP=done
-				break
-		fi
+            else 
+                LOL_INSTALLER=$PHD/LOL_INSTALLER.exe
+                mkdir -p /opt/games/leagueoflegends
+                LOL_INSTALLER_LOOP=done
+                break
+        fi
 
-	done
+    done
 
-	install_wine
+    install_wine
 
-	#apply_patches
+    #apply_patches
 
 }
 
 disabled-src_unpack () {
 # Extract source packages and do any necessary patching or fixes.
 
-	return
+    return
 }
 
 disable_src_prepare () {
 # Prepare source packages and do any necessary patching or fixes.
 
-	install_wine
-	## TODO: results in https://paste.pound-python.org/show/7wSqPPauklg8C7mVXhwR/
+    install_wine
+    ## TODO: results in https://paste.pound-python.org/show/7wSqPPauklg8C7mVXhwR/
 
-	return
+    return
 }
 
 disabled-src_configure () {
 # Configure the package.
 
-	return
+    return
 }
 
 disabled-src_compile () {
 # Configure and build the package.
 
-	return
+    return
 }
 
 disabled-src_test () {
 # Run pre-install test scripts
 
-	return
+    return
 }
 
 disabled-src_install () {
 # Install a package to ${IMAGEDIR}
 
-	return
+    return
 }
 
 disabled-pkg_preinstall () {
 # Called before image is installed to ${ROOT}
 
-	return
+    return
 }
 
 disabled-pkg_postinst () {
 # Called after image is installed to ${ROOT}
 
-	return
+    return
 }
 
 disabled-pkg_prerm () {
 # Called before a package is unmerged
 
-	rm -r /opt/games/leagueoflegends
+    rm -r /opt/games/leagueoflegends
 
-	return
+    return
 }
 
 pkg_postrm () {
 # Called after image is installed to ${ROOT}
 
-	return
+    return
 }
 
 disabled-pkg_config () {
 # Run any special post-install configuration
 
-	return
+    return
 }
 
 disabled-pkg_info () {
 # display information about a package
 
-	return
+    return
 }
