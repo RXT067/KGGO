@@ -1,6 +1,8 @@
 # KGGO [KGō̊: (tlhlngan accent)]
 Krey's Gentoo Gaming Overlay, because i want OOTB gaming on Gentoo that Gentoo doesn't support by design and they should! It's awesome o.o
 
+Last test: https://www.youtube.com/watch?v=Uvmsw4_25ZY
+
 ## Abstract
 OutOfTheBox Gaming on Gentoo using WINE with wineapps on platinum.
 
