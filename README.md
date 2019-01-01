@@ -1,4 +1,7 @@
 # KGGO [KGō̊: (tlhlngan accent)]
+
+WARNING: This overlay is dangerous since it's invoking WINE as root.
+
 Krey's Gentoo Gaming Overlay, because i want OOTB gaming on Gentoo that Gentoo doesn't support by design and they should! It's awesome o.o
 
 Last test: https://www.youtube.com/watch?v=Uvmsw4_25ZY
